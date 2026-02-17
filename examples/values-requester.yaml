@@ -58,10 +58,7 @@ requester:
   image: "ghcr.io/llm-d-incubation/llm-d-fast-model-actuation/requester:latest"
   accelerators: "GPU-0"
   inferenceServerConfig: "inference-server-config-example"
-  inferenceServerConfigAnnotations:
-    description: "Example InferenceServerConfig"
   launcherConfig: "launcher-config-example"
-  launcherConfigAnnotations: {}
   port:
     probes: 8080
     spi: 8081
@@ -74,26 +71,37 @@ requester:
       cpus: 1
       memory: 250Mi
 
-  # @schema
-  # additionalProperties: true
-  # @schema
+  launcherConfigSpec:
+    maxSleepingInstances: 3
+    podTemplate:
+      spec:
+        containers:
+          - name: inference-server
+            image: "ghcr.io/llm-d-incubation/llm-d-fast-model-actuation/launcher:latest"
+            imagePullPolicy: IfNotPresent
+            command:
+              - /bin/bash
+              - -c
+            args:
+              - |
+                uvicorn launcher:app --host 0.0.0.0 --log-level info --port 8001
+
   modelServerConfig:
-    # @schema
-    # additionalProperties: true
-    # @schema
     annotations: {}
-    # @schema
-    # additionalProperties: true
-    # @schema
-    labels: {}
-    # @schema
-    # additionalProperties: true
-    # @schema
+    labels:
+      component: inference
     env_vars:
       VLLM_SERVER_DEV_MODE: "1"
       VLLM_USE_V1: "1"
       VLLM_LOGGING_LEVEL: "DEBUG"
-    options: ""
+      CUDA_VISIBLE_DEVICES: "0"
+      UCX_TLS: "cuda_ipc,cuda_copy,tcp"
+      VLLM_NIXL_SIDE_CHANNEL_PORT: "5600"
+      DP_SIZE: "1"
+      TP_SIZE: "1"
+      DP_SIZE_LOCAL: "1"
+      HF_HOME: "/model-cache"
+    options: "--model facebook/opt-125m --served-model-name facebook/opt-125m --enforce-eager --kv-transfer-config {\"kv_connector\":\"NixlConnector\", \"kv_role\":\"kv_both\"}"
     port: 8005
 
 # Decode pod configuation

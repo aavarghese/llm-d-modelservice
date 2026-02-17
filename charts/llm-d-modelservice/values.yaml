@@ -178,9 +178,6 @@ requester:
   launcherConfigSpec:
     maxSleepingInstances: 3
     podTemplate:
-      # @schema
-      # additionalProperties: true
-      # @schema
       metadata: {}
       spec:
         containers:
@@ -198,17 +195,8 @@ requester:
   # additionalProperties: true
   # @schema
   modelServerConfig:
-    # @schema
-    # additionalProperties: true
-    # @schema
     annotations: {}
-    # @schema
-    # additionalProperties: true
-    # @schema
     labels: {}
-    # @schema
-    # additionalProperties: true
-    # @schema
     env_vars: {}
     options: ""
     port: 8005
